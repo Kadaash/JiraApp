@@ -4,10 +4,11 @@ import os
 import mimetypes
 
 class JiraAPI:
-    def __init__(self, jira_url: str, username: str, api_token: str):
+    def __init__(self, jira_url: str, username: str, api_token: str, ssl_verify: bool = True):
         self.jira_url = jira_url.rstrip('/')
         self.username = username
         self.api_token = api_token
+        self.ssl_verify = ssl_verify
         self.auth_header = self._get_auth_header()
 
     def _get_auth_header(self) -> dict:
@@ -24,7 +25,7 @@ class JiraAPI:
         """Verifies credentials by making a request to the /myself endpoint."""
         api_url = f"{self.jira_url}/rest/api/3/myself"
         try:
-            response = requests.get(api_url, headers=self.auth_header, timeout=10)
+            response = requests.get(api_url, headers=self.auth_header, timeout=10, verify=self.ssl_verify)
             if response.status_code == 200:
                 print("Credentials verified successfully.")
                 return True
@@ -46,7 +47,7 @@ class JiraAPI:
             params['fields'] = ",".join(fields)
 
         try:
-            response = requests.get(api_url, headers=self.auth_header, params=params, timeout=10)
+            response = requests.get(api_url, headers=self.auth_header, params=params, timeout=10, verify=self.ssl_verify)
             if response.status_code == 200:
                 return response.json().get('issues', [])
             else:
@@ -90,7 +91,7 @@ class JiraAPI:
             payload["fields"].update(custom_fields)
 
         try:
-            response = requests.post(api_url, headers=self.auth_header, json=payload, timeout=10)
+            response = requests.post(api_url, headers=self.auth_header, json=payload, timeout=10, verify=self.ssl_verify)
             if response.status_code == 201: # 201 Created
                 print(f"Issue created successfully: {response.json().get('key')}")
                 return response.json()
@@ -117,7 +118,7 @@ class JiraAPI:
 
             with open(file_path, 'rb') as file_obj:
                 files = {'file': (file_name, file_obj, content_type)}
-                response = requests.post(api_url, headers=headers, files=files, timeout=30) # Increased timeout for uploads
+                response = requests.post(api_url, headers=headers, files=files, timeout=30, verify=self.ssl_verify) # Increased timeout for uploads
 
             if response.status_code == 200:
                 print(f"Attachment '{file_name}' added successfully to issue '{issue_id_or_key}'.")
@@ -149,7 +150,7 @@ class JiraAPI:
             params['expand'] = expand
 
         try:
-            response = requests.get(api_url, headers=self.auth_header, params=params, timeout=15)
+            response = requests.get(api_url, headers=self.auth_header, params=params, timeout=15, verify=self.ssl_verify)
             if response.status_code == 200:
                 # The response contains a 'projects' list.
                 return response.json()
