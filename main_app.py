@@ -43,7 +43,7 @@ class JiraApp(ctk.CTk):
     def _setup_login_view(self):
         """Populates the login frame."""
         # JIRA URL
-        ctk.CTkLabel(self.login_frame, text="JIRA URL:").grid(row=0, column=0, padx=20, pady=5, sticky="w")
+        ctk.CTkLabel(self.login_frame, text="JIRA Base URL (e.g., https://your-jira.com):").grid(row=0, column=0, padx=20, pady=5, sticky="w")
         self.url_entry = ctk.CTkEntry(self.login_frame, width=300)
         self.url_entry.grid(row=0, column=1, columnspan=2, padx=20, pady=5, sticky="ew")
 
